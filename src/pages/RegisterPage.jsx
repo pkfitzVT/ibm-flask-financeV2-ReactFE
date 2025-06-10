@@ -1,35 +1,38 @@
-// src/pages/LoginPage.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../apiClient';
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const [email, setEmail]       = useState('');
     const [password, setPassword] = useState('');
     const [error, setError]       = useState(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
         try {
-            await api.post('/login', { email, password });
-            window.location.href = '/transactions';
+            await api.post('/register', { email, password });
+            navigate('/login', { replace: true });
         } catch (err) {
-            setError('Login failed');
+            console.error(err);
+            setError(err.response?.data?.error || 'Registration failed');
         }
     };
 
     return (
         <div className="container p-4">
-            <h2>Login</h2>
+            <h2>Register</h2>
             {error && <div className="alert alert-danger">{error}</div>}
 
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                    <label htmlFor="login-email" className="form-label">
+                    <label htmlFor="reg-email" className="form-label">
                         Email
                     </label>
                     <input
-                        id="login-email"
+                        id="reg-email"
                         type="email"
                         className="form-control"
                         value={email}
@@ -40,11 +43,11 @@ export default function LoginPage() {
 
                 <div className="mb-3">
                     {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                    <label htmlFor="login-password" className="form-label">
+                    <label htmlFor="reg-password" className="form-label">
                         Password
                     </label>
                     <input
-                        id="login-password"
+                        id="reg-password"
                         type="password"
                         className="form-control"
                         value={password}
@@ -54,7 +57,7 @@ export default function LoginPage() {
                 </div>
 
                 <button type="submit" className="btn btn-primary">
-                    Log In
+                    Register
                 </button>
             </form>
         </div>

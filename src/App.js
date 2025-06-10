@@ -1,31 +1,33 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Transactions from './pages/Transactions';
-import LoginPage    from './pages/LoginPage';
-import Analysis     from './pages/Analysis/AnalysisDashboard';
+import SplashPage     from './pages/SplashPage';
+import LoginPage      from './pages/LoginPage';
+import RegisterPage   from './pages/RegisterPage';
+import Transactions   from './pages/Transactions';
+import Analysis       from './pages/Analysis/AnalysisDashboard';
 
 function App() {
-  return (
-      <BrowserRouter>
-        <Routes>
-          {/* Redirect root to /transactions (or /login as you choose) */}
-          <Route path="/" element={<Navigate to="/transactions" replace />} />
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Splash/Landing page */}
+                <Route path="/" element={<SplashPage />} />
 
-          {/* Public route */}
-          <Route path="/login" element={<LoginPage />} />
+                {/* Authentication */}
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/login"    element={<LoginPage />} />
 
-          {/* Protected routes */}
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/analysis/*" element={<Analysis />} />
-          {/* Inside AnalysisDashboard you’d have nested Routes for regression and A/B */}
+                {/* Protected areas */}
+                <Route path="/transactions" element={<Transactions />} />
+                <Route path="/analysis/*"   element={<Analysis />} />
 
-          {/* 404 catch-all */}
-          <Route path="*" element={<div>Page not found</div>} />
-        </Routes>
-      </BrowserRouter>
-  );
+                {/* Fallback */}
+                <Route path="*" element={<div>Page not found</div>} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;
