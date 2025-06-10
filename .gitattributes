@@ -1,0 +1,6 @@
+# Enforce Unix line endings for JS/JSX and other text
+*.js     text eol=lf
+*.jsx    text eol=lf
+*.json   text eol=lf
+*.css    text eol=lf
+*.html   text eol=lf
