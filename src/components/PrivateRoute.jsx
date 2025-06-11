@@ -1,6 +1,8 @@
+// src/components/PrivateRoute.jsx
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function PrivateRoute({ children }) {
     const { isAuthenticated } = useAuth();
@@ -8,3 +10,7 @@ export default function PrivateRoute({ children }) {
         ? children
         : <Navigate to="/login" replace />;
 }
+
+PrivateRoute.propTypes = {
+    children: PropTypes.node.isRequired,
+};

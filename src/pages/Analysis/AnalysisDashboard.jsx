@@ -1,23 +1,11 @@
-import { Outlet, Link } from 'react-router-dom';
+// src/pages/Analysis/AnalysisDashboard.jsx
+import React from 'react';
 
 export default function AnalysisDashboard() {
-  return (
-    <div>
-      <h1>Analysis</h1>
-      <nav>
-        <Link to="regression">Regression</Link> |{' '}
-        <Link to="abtest">A/B Test</Link>
-      </nav>
-      <Outlet /> {/* Renders RegressionPage or AbTestPage */}
-    </div>
-  );
+    return (
+        <div className="container p-4">
+            <h2>Analysis Dashboard</h2>
+            {/* TODO: add your RegressionPage, AbTestPage, etc. */}
+        </div>
+    );
 }
-
-// And in your index of that folder:
-//
-// <Routes>
-//   <Route path="/" element={<AnalysisDashboard />}>
-//     <Route path="regression" element={<RegressionPage />} />
-//     <Route path="abtest"    element={<AbTestPage />} />
-//   </Route>
-// </Routes>
