@@ -1,11 +1,19 @@
-// src/pages/Analysis/AnalysisDashboard.jsx
+// src/pages/AnalysisDashboard.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function AnalysisDashboard() {
     return (
-        <div className="container p-4">
-            <h2>Analysis Dashboard</h2>
-            {/* TODO: add your RegressionPage, AbTestPage, etc. */}
+        <div className="p-4">
+            <h1>Analysis Dashboard</h1>
+            <ul>
+                <li>
+                    <Link to="/analysis/abtest">A/B Testing</Link>
+                </li>
+                <li>
+                    <Link to="/analysis/regression">Regression Analysis</Link>
+                </li>
+            </ul>
         </div>
     );
 }
