@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.jsx
 import React, {
   createContext,
   useContext,
@@ -8,7 +7,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import api from '../apiClient.js';
+import api from '../apiClient';
 
 const AuthContext = createContext();
 
@@ -34,7 +33,6 @@ export function AuthProvider({ children }) {
     navigate('/login', { replace: true });
   };
 
-  // memoize so the context value object is stable
   const value = useMemo(
       () => ({ isAuthenticated, logout }),
       [isAuthenticated, logout]
