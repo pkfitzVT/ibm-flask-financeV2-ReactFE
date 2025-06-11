@@ -1,60 +1,124 @@
-// src/pages/RegressionPage.jsx
-import React, { useState, useEffect } from 'react';
+// src/pages/Analysis/RegressionPage.jsx
+import React, { useState } from 'react';
 import axios from 'axios';
 
 export default function RegressionPage() {
-    // State for filters & results
-    const [start, setStart]   = useState('');
-    const [end, setEnd]       = useState('');
-    const [months, setMonths] = useState([]); // e.g. [1,2,3]
-    const [hours, setHours]   = useState([]); // e.g. [9,10,11]
-    const [model, setModel]   = useState(null);
-    const [error, setError]   = useState(null);
+    // filter state
+    const [startDate, setStartDate] = useState('');
+    const [endDate,   setEndDate]   = useState('');
+    const [period,    setPeriod]    = useState('all');
 
-    // Fetch whenever filters change (or you can trigger on a button click)
-    useEffect(() => {
-        // Only call once you have valid inputs (or remove the guard to call on mount)
-        if (!start && !end && !months.length && !hours.length) return;
+    // results
+    const [result,   setResult]   = useState(null);
+    const [chartImg, setChartImg] = useState(null);
+    const [error,    setError]    = useState(null);
+    const [loading,  setLoading]  = useState(false);
 
-        axios.get('/api/analysis/regression', {
-            withCredentials: true,
-            params: {
-                start,
-                end,
-                months: months.join(','),
-                hours:  hours.join(',')
-            }
-        })
-            .then(res => setModel(res.data))
-            .catch(err => setError(err));
-    }, [start, end, months, hours]);
+    const runAnalysis = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data } = await axios.get('/api/analysis/regression', {
+                withCredentials: true,
+                params: {
+                    start:  startDate || undefined,
+                    end:    endDate   || undefined,
+                    period,              // pass 'all'|'morning'|'noon'|'afternoon'
+                },
+            });
+            // expecting { slope, intercept, r_squared, chart_img? }
+            setResult({
+                slope:     data.slope,
+                intercept: data.intercept,
+                r2:        data.r_squared ?? data.r2,
+            });
+            setChartImg(data.chart_img ?? null);
+        } catch (e) {
+            setError(e);
+            setResult(null);
+            setChartImg(null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    if (error)  return <p>Error: {error.message}</p>;
-    if (!model) return <p>Loading…</p>;
+    const handleSubmit = e => {
+        e.preventDefault();
+        runAnalysis();
+    };
 
     return (
-        <div>
+        <div className="p-4">
             <h2>Regression Analysis</h2>
 
-            {/* Example filter inputs */}
-            <div>
-                <label>
-                    Start date:
-                    <input type="date" value={start}
-                           onChange={e => setStart(e.target.value)} />
+            <form onSubmit={handleSubmit} className="form-inline mb-4">
+                <label className="me-3">
+                    From:{' '}
+                    <input
+                        type="date"
+                        name="start_date"
+                        value={startDate}
+                        onChange={e => setStartDate(e.target.value)}
+                        className="form-control"
+                    />
                 </label>
-                <label>
-                    End date:
-                    <input type="date" value={end}
-                           onChange={e => setEnd(e.target.value)} />
-                </label>
-                {/* Add multi-selects or checkboxes for months/hours here */}
-            </div>
 
-            {/* Results */}
-            <p>Intercept: {model.intercept}</p>
-            <p>Slope:     {model.slope}</p>
-            <p>R²:        {model.r_squared}</p>
+                <label className="me-3">
+                    To:{' '}
+                    <input
+                        type="date"
+                        name="end_date"
+                        value={endDate}
+                        onChange={e => setEndDate(e.target.value)}
+                        className="form-control"
+                    />
+                </label>
+
+                <label className="me-3">
+                    Period:{' '}
+                    <select
+                        name="period"
+                        value={period}
+                        onChange={e => setPeriod(e.target.value)}
+                        className="form-select"
+                        style={{ display: 'inline-block', width: 'auto' }}
+                    >
+                        {['all','morning','noon','afternoon'].map(p => (
+                            <option key={p} value={p}>
+                                {p.charAt(0).toUpperCase() + p.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? 'Filtering…' : 'Filter'}
+                </button>
+            </form>
+
+            {error && (
+                <div className="alert alert-danger">
+                    Error: {error.message}
+                </div>
+            )}
+
+            {result && (
+                <div className="mt-4">
+                    <h5>Results:</h5>
+                    <ul>
+                        <li>Slope:     {result.slope ?? 'N/A'}</li>
+                        <li>Intercept: {result.intercept ?? 'N/A'}</li>
+                        <li>R²:        {result.r2 ?? 'N/A'}</li>
+                    </ul>
+                </div>
+            )}
+
+            {chartImg && (
+                <div className="mb-5">
+                    <h5>Data + Trend Line:</h5>
+                    <img src={`data:image/png;base64,${chartImg}`} alt="Regression chart" />
+                </div>
+            )}
         </div>
     );
 }
