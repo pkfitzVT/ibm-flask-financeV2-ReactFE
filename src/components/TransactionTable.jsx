@@ -9,13 +9,13 @@ export default function TransactionTable({
                                              onCreate,
                                          }) {
     const [edits, setEdits] = useState({});
-    const [newTxn, setNewTxn] = useState({ date: '', amount: '' });
+    const [newTxn, setNewTxn] = useState({ dateTime: '', amount: '' });
 
     const startEdit = (transaction) =>
         setEdits((prev) => ({
             ...prev,
             [transaction.id]: {
-                date: transaction.date,
+                dateTime: transaction.dateTime,
                 amount: transaction.amount,
             },
         }));
@@ -33,8 +33,11 @@ export default function TransactionTable({
     };
 
     const saveNew = () => {
-        onCreate({ date: newTxn.date, amount: Number(newTxn.amount) });
-        setNewTxn({ date: '', amount: '' });
+        onCreate({
+            dateTime: newTxn.dateTime,
+            amount: Number(newTxn.amount),
+        });
+        setNewTxn({ dateTime: '', amount: '' });
     };
 
     return (
@@ -42,7 +45,7 @@ export default function TransactionTable({
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Date</th>
+                <th>Date & Time</th>
                 <th>Amount</th>
                 <th>Actions</th>
             </tr>
@@ -56,17 +59,20 @@ export default function TransactionTable({
                         <td>
                             {isEditing ? (
                                 <input
-                                    type="date"
-                                    value={edits[t.id].date}
+                                    type="datetime-local"
+                                    value={edits[t.id].dateTime}
                                     onChange={(evt) =>
                                         setEdits((prev) => ({
                                             ...prev,
-                                            [t.id]: { ...prev[t.id], date: evt.target.value },
+                                            [t.id]: {
+                                                ...prev[t.id],
+                                                dateTime: evt.target.value,
+                                            },
                                         }))
                                     }
                                 />
                             ) : (
-                                t.date
+                                new Date(t.dateTime).toLocaleString()
                             )}
                         </td>
                         <td>
@@ -77,7 +83,10 @@ export default function TransactionTable({
                                     onChange={(evt) =>
                                         setEdits((prev) => ({
                                             ...prev,
-                                            [t.id]: { ...prev[t.id], amount: evt.target.value },
+                                            [t.id]: {
+                                                ...prev[t.id],
+                                                amount: evt.target.value,
+                                            },
                                         }))
                                     }
                                 />
@@ -107,10 +116,13 @@ export default function TransactionTable({
                 <td>—</td>
                 <td>
                     <input
-                        type="date"
-                        value={newTxn.date}
+                        type="datetime-local"
+                        value={newTxn.dateTime}
                         onChange={(evt) =>
-                            setNewTxn((prev) => ({ ...prev, date: evt.target.value }))
+                            setNewTxn((prev) => ({
+                                ...prev,
+                                dateTime: evt.target.value,
+                            }))
                         }
                     />
                 </td>
@@ -119,15 +131,15 @@ export default function TransactionTable({
                         type="number"
                         value={newTxn.amount}
                         onChange={(evt) =>
-                            setNewTxn((prev) => ({ ...prev, amount: evt.target.value }))
+                            setNewTxn((prev) => ({
+                                ...prev,
+                                amount: evt.target.value,
+                            }))
                         }
                     />
                 </td>
                 <td>
-                    <button
-                        onClick={saveNew}
-                        disabled={!newTxn.date || !newTxn.amount}
-                    >
+                    <button onClick={saveNew} disabled={!newTxn.dateTime || !newTxn.amount}>
                         ➕ Add
                     </button>
                 </td>
@@ -141,9 +153,8 @@ TransactionTable.propTypes = {
     transactions: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.number.isRequired,
-            date: PropTypes.string.isRequired,
-            amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+            dateTime: PropTypes.string.isRequired,
+            amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         })
     ).isRequired,
     onDelete: PropTypes.func.isRequired,
