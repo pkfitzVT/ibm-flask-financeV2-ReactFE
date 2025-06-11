@@ -2,18 +2,27 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-export default function TransactionTable({ transactions, onDelete, onUpdate }) {
+export default function TransactionTable({
+                                             transactions,
+                                             onDelete,
+                                             onUpdate,
+                                             onCreate,
+                                         }) {
     const [edits, setEdits] = useState({});
+    const [newTxn, setNewTxn] = useState({ date: '', amount: '' });
 
     const startEdit = (transaction) =>
-        setEdits((prevEdits) => ({
-            ...prevEdits,
-            [transaction.id]: { date: transaction.date, amount: transaction.amount },
+        setEdits((prev) => ({
+            ...prev,
+            [transaction.id]: {
+                date: transaction.date,
+                amount: transaction.amount,
+            },
         }));
 
     const cancelEdit = (id) =>
-        setEdits((prevEdits) => {
-            const copy = { ...prevEdits };
+        setEdits((prev) => {
+            const copy = { ...prev };
             delete copy[id];
             return copy;
         });
@@ -21,6 +30,11 @@ export default function TransactionTable({ transactions, onDelete, onUpdate }) {
     const saveEdit = (id) => {
         onUpdate(id, edits[id]);
         cancelEdit(id);
+    };
+
+    const saveNew = () => {
+        onCreate({ date: newTxn.date, amount: Number(newTxn.amount) });
+        setNewTxn({ date: '', amount: '' });
     };
 
     return (
@@ -42,14 +56,12 @@ export default function TransactionTable({ transactions, onDelete, onUpdate }) {
                         <td>
                             {isEditing ? (
                                 <input
+                                    type="date"
                                     value={edits[t.id].date}
                                     onChange={(evt) =>
-                                        setEdits((prevEdits) => ({
-                                            ...prevEdits,
-                                            [t.id]: {
-                                                ...prevEdits[t.id],
-                                                date: evt.target.value,
-                                            },
+                                        setEdits((prev) => ({
+                                            ...prev,
+                                            [t.id]: { ...prev[t.id], date: evt.target.value },
                                         }))
                                     }
                                 />
@@ -63,12 +75,9 @@ export default function TransactionTable({ transactions, onDelete, onUpdate }) {
                                     type="number"
                                     value={edits[t.id].amount}
                                     onChange={(evt) =>
-                                        setEdits((prevEdits) => ({
-                                            ...prevEdits,
-                                            [t.id]: {
-                                                ...prevEdits[t.id],
-                                                amount: evt.target.value,
-                                            },
+                                        setEdits((prev) => ({
+                                            ...prev,
+                                            [t.id]: { ...prev[t.id], amount: evt.target.value },
                                         }))
                                     }
                                 />
@@ -93,7 +102,36 @@ export default function TransactionTable({ transactions, onDelete, onUpdate }) {
                 );
             })}
 
-            {/* You can add your “new” row here for insert if you like */}
+            {/* Blank row for adding a new transaction */}
+            <tr>
+                <td>—</td>
+                <td>
+                    <input
+                        type="date"
+                        value={newTxn.date}
+                        onChange={(evt) =>
+                            setNewTxn((prev) => ({ ...prev, date: evt.target.value }))
+                        }
+                    />
+                </td>
+                <td>
+                    <input
+                        type="number"
+                        value={newTxn.amount}
+                        onChange={(evt) =>
+                            setNewTxn((prev) => ({ ...prev, amount: evt.target.value }))
+                        }
+                    />
+                </td>
+                <td>
+                    <button
+                        onClick={saveNew}
+                        disabled={!newTxn.date || !newTxn.amount}
+                    >
+                        ➕ Add
+                    </button>
+                </td>
+            </tr>
             </tbody>
         </table>
     );
@@ -104,9 +142,11 @@ TransactionTable.propTypes = {
         PropTypes.shape({
             id: PropTypes.number.isRequired,
             date: PropTypes.string.isRequired,
-            amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+            amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                .isRequired,
         })
     ).isRequired,
     onDelete: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
+    onCreate: PropTypes.func.isRequired,
 };

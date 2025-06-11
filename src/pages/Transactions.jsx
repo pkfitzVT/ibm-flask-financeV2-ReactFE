@@ -1,40 +1,41 @@
+// src/pages/Transactions.jsx
 import { useEffect, useState } from 'react';
 import api from '../apiClient';
 import TransactionTable from '../components/TransactionTable';
 
 export default function Transactions() {
     const [transactions, setTransactions] = useState([]);
-    const [error,        setError]        = useState(null);
-    const [loading,      setLoading]      = useState(true);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         api.get('/transactions')
-            .then(res => {
+            .then((res) => {
                 setTransactions(res.data);
-                setLoading(false);
             })
             .catch(() => {
                 setError('Failed to load transactions');
+            })
+            .finally(() => {
                 setLoading(false);
             });
     }, []);
 
-    const handleDelete = id => {
+    const handleDelete = (id) => {
         api.delete(`/transactions/${id}`)
             .then(() => {
-                setTransactions(ts => ts.filter(t => t.id !== id));
+                setTransactions((prev) => prev.filter((t) => t.id !== id));
             })
             .catch(() => {
                 setError('Failed to delete transaction');
             });
     };
 
-    // ← NEW: patch your update endpoint
     const handleUpdate = (id, changes) => {
-        api.patch(`/transactions/${id}`, changes)
-            .then(res => {
-                setTransactions(ts =>
-                    ts.map(t => t.id === id ? res.data : t)
+        api.put(`/transactions/${id}`, changes)
+            .then((res) => {
+                setTransactions((prev) =>
+                    prev.map((t) => (t.id === id ? res.data : t))
                 );
             })
             .catch(() => {
@@ -42,8 +43,23 @@ export default function Transactions() {
             });
     };
 
-    if (loading) return <div>Loading transactions…</div>;
-    if (error)   return <div className="alert alert-danger">{error}</div>;
+    const handleCreate = (newTxn) => {
+        api.post('/transactions', newTxn)
+            .then((res) => {
+                setTransactions((prev) => [...prev, res.data]);
+            })
+            .catch(() => {
+                setError('Failed to create transaction');
+            });
+    };
+
+    if (loading) {
+        return <div>Loading transactions…</div>;
+    }
+
+    if (error) {
+        return <div className="alert alert-danger">{error}</div>;
+    }
 
     return (
         <div className="container p-4">
@@ -51,7 +67,8 @@ export default function Transactions() {
             <TransactionTable
                 transactions={transactions}
                 onDelete={handleDelete}
-                onUpdate={handleUpdate}  // ← now passed in
+                onUpdate={handleUpdate}
+                onCreate={handleCreate}
             />
         </div>
     );
