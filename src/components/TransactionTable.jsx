@@ -1,9 +1,30 @@
 // src/components/TransactionTable.jsx
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-export default function TransactionTable({ transactions, onEdit, onDelete }) {
+export default function TransactionTable({ transactions, onDelete, onUpdate }) {
+    const [edits, setEdits] = useState({});
+
+    const startEdit = (transaction) =>
+        setEdits((prevEdits) => ({
+            ...prevEdits,
+            [transaction.id]: { date: transaction.date, amount: transaction.amount },
+        }));
+
+    const cancelEdit = (id) =>
+        setEdits((prevEdits) => {
+            const copy = { ...prevEdits };
+            delete copy[id];
+            return copy;
+        });
+
+    const saveEdit = (id) => {
+        onUpdate(id, edits[id]);
+        cancelEdit(id);
+    };
+
     return (
-        <table className="table table-striped">
+        <table className="table">
             <thead>
             <tr>
                 <th>ID</th>
@@ -13,27 +34,66 @@ export default function TransactionTable({ transactions, onEdit, onDelete }) {
             </tr>
             </thead>
             <tbody>
-            {transactions.map((txn) => (
-                <tr key={txn.id}>
-                    <td>{txn.id}</td>
-                    <td>{txn.date}</td>
-                    <td>${txn.amount.toFixed(2)}</td>
-                    <td>
-                        <button
-                            className="btn btn-sm btn-outline-primary me-2"
-                            onClick={() => onEdit(txn)}
-                        >
-                            Edit
-                        </button>
-                        <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => onDelete(txn.id)}
-                        >
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            ))}
+            {transactions.map((t) => {
+                const isEditing = Boolean(edits[t.id]);
+                return (
+                    <tr key={t.id}>
+                        <td>{t.id}</td>
+                        <td>
+                            {isEditing ? (
+                                <input
+                                    value={edits[t.id].date}
+                                    onChange={(evt) =>
+                                        setEdits((prevEdits) => ({
+                                            ...prevEdits,
+                                            [t.id]: {
+                                                ...prevEdits[t.id],
+                                                date: evt.target.value,
+                                            },
+                                        }))
+                                    }
+                                />
+                            ) : (
+                                t.date
+                            )}
+                        </td>
+                        <td>
+                            {isEditing ? (
+                                <input
+                                    type="number"
+                                    value={edits[t.id].amount}
+                                    onChange={(evt) =>
+                                        setEdits((prevEdits) => ({
+                                            ...prevEdits,
+                                            [t.id]: {
+                                                ...prevEdits[t.id],
+                                                amount: evt.target.value,
+                                            },
+                                        }))
+                                    }
+                                />
+                            ) : (
+                                t.amount
+                            )}
+                        </td>
+                        <td>
+                            {isEditing ? (
+                                <>
+                                    <button onClick={() => saveEdit(t.id)}>💾 Save</button>
+                                    <button onClick={() => cancelEdit(t.id)}>✖ Cancel</button>
+                                </>
+                            ) : (
+                                <>
+                                    <button onClick={() => startEdit(t)}>✏️ Edit</button>
+                                    <button onClick={() => onDelete(t.id)}>🗑️ Delete</button>
+                                </>
+                            )}
+                        </td>
+                    </tr>
+                );
+            })}
+
+            {/* You can add your “new” row here for insert if you like */}
             </tbody>
         </table>
     );
@@ -42,11 +102,11 @@ export default function TransactionTable({ transactions, onEdit, onDelete }) {
 TransactionTable.propTypes = {
     transactions: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.number,
-            date: PropTypes.string,
-            amount: PropTypes.number,
+            id: PropTypes.number.isRequired,
+            date: PropTypes.string.isRequired,
+            amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         })
     ).isRequired,
-    onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };

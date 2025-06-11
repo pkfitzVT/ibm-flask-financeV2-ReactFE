@@ -1,59 +1,58 @@
 import { useEffect, useState } from 'react';
 import api from '../apiClient';
+import TransactionTable from '../components/TransactionTable';
 
 export default function Transactions() {
-    // 1) Hooks at the very top—no returns before this!
     const [transactions, setTransactions] = useState([]);
-    const [error, setError]               = useState(null);
-    const [loading, setLoading]           = useState(true);
-    console.log('🔍 transactions state type:', typeof transactions);
-    console.log('🔍 transactions state value:', transactions);
-    console.log('State – transactions:', transactions);
-    // 2) useEffect immediately—still before any early return
+    const [error,        setError]        = useState(null);
+    const [loading,      setLoading]      = useState(true);
+
     useEffect(() => {
         api.get('/transactions')
-            .then((res) => {
-                console.log('Raw response data:', res.data);
+            .then(res => {
                 setTransactions(res.data);
+                setLoading(false);
             })
-            .catch((err) => {
-                console.error(err);
+            .catch(() => {
                 setError('Failed to load transactions');
-            })
-            .finally(() => {
                 setLoading(false);
             });
     }, []);
 
-    // 3) Now it’s safe to return early based on state
-    if (loading) {
-        console.log('Loading… transactions state is:', transactions);
-        return <div>Loading transactions…</div>;
-    }
+    const handleDelete = id => {
+        api.delete(`/transactions/${id}`)
+            .then(() => {
+                setTransactions(ts => ts.filter(t => t.id !== id));
+            })
+            .catch(() => {
+                setError('Failed to delete transaction');
+            });
+    };
 
-    if (error) {
-        console.log('After load, transactions state is:', transactions);
-        return <div className="alert alert-danger">{error}</div>;
-    }
+    // ← NEW: patch your update endpoint
+    const handleUpdate = (id, changes) => {
+        api.patch(`/transactions/${id}`, changes)
+            .then(res => {
+                setTransactions(ts =>
+                    ts.map(t => t.id === id ? res.data : t)
+                );
+            })
+            .catch(() => {
+                setError('Failed to update transaction');
+            });
+    };
 
-    // 4) Finally, render the table
+    if (loading) return <div>Loading transactions…</div>;
+    if (error)   return <div className="alert alert-danger">{error}</div>;
+
     return (
         <div className="container p-4">
             <h2>Transactions</h2>
-            <table className="table table-striped">
-                <thead>
-                <tr><th>ID</th><th>Date</th><th>Amount</th></tr>
-                </thead>
-                <tbody>
-                {transactions.map((txn) => (
-                    <tr key={txn.id}>
-                        <td>{txn.id}</td>
-                        <td>{txn.date}</td>
-                        <td>${txn.amount.toFixed(2)}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <TransactionTable
+                transactions={transactions}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}  // ← now passed in
+            />
         </div>
     );
 }

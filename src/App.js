@@ -1,33 +1,54 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import SplashPage     from './pages/SplashPage';
-import LoginPage      from './pages/LoginPage';
-import RegisterPage   from './pages/RegisterPage';
-import Transactions   from './pages/Transactions';
-import Analysis       from './pages/Analysis/AnalysisDashboard';
+import { AuthProvider }      from './contexts/AuthContext';
+import Header                from './components/Header';
+import PrivateRoute          from './components/PrivateRoute';
+
+import SplashPage            from './pages/SplashPage';
+import LoginPage             from './pages/LoginPage';
+import RegisterPage          from './pages/RegisterPage';
+import LogoutPage            from './pages/LogoutPage';
+import Transactions          from './pages/Transactions';
+import AnalysisDashboard     from './pages/Analysis/AnalysisDashboard';
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                {/* Splash/Landing page */}
-                <Route path="/" element={<SplashPage />} />
+  return (
+      <BrowserRouter>
+        <AuthProvider>
+          <Header />
 
-                {/* Authentication */}
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/login"    element={<LoginPage />} />
+          <Routes>
+            {/* Public */}
+            <Route path="/"        element={<SplashPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login"    element={<LoginPage />} />
 
-                {/* Protected areas */}
-                <Route path="/transactions" element={<Transactions />} />
-                <Route path="/analysis/*"   element={<Analysis />} />
+            {/* Protected */}
+            <Route
+                path="/transactions"
+                element={
+                  <PrivateRoute>
+                    <Transactions />
+                  </PrivateRoute>
+                }
+            />
+            <Route
+                path="/analysis/*"
+                element={
+                  <PrivateRoute>
+                    <AnalysisDashboard />
+                  </PrivateRoute>
+                }
+            />
+            <Route path="/logout" element={<LogoutPage />} />
 
-                {/* Fallback */}
-                <Route path="*" element={<div>Page not found</div>} />
-            </Routes>
-        </BrowserRouter>
-    );
+            {/* Catch-all */}
+            <Route path="*" element={<div>Page not found</div>} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+  );
 }
 
 export default App;

@@ -1,4 +1,3 @@
-// src/pages/Analysis/RegressionPage.jsx
 import { useState, useEffect } from 'react';
 import api from '../../apiClient';
 
@@ -7,8 +6,10 @@ export default function RegressionPage() {
 
     useEffect(() => {
         api.get('/analysis/regression')
-            .then(res => setData(res.data))
-            .catch(console.error);
+            .then((res) => setData(res.data))
+            .catch(() => {
+                // handle error if needed
+            });
     }, []);
 
     return (

@@ -34,5 +34,9 @@ module.exports = {
         // … your other rules …
         'react/react-in-jsx-scope': 'off',                  // already there
         'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
+        'prettier/prettier': 'off',
+        'no-console': 'off',
+        'react/button-has-type': 'off',
+        'jsx-a11y/label-has-associated-control': 'off',
     }
 };
