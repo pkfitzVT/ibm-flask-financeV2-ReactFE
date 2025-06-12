@@ -1,8 +1,8 @@
 // src/pages/RegisterPage.jsx
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../apiClient';
+import React, { useState } from 'react';
+import { useNavigate }       from 'react-router-dom';
+import api                    from '../apiClient';
 
 export default function RegisterPage() {
   const [email, setEmail]       = useState('');
@@ -27,7 +27,11 @@ export default function RegisterPage() {
         <div className="page-card">
           <h2 className="text-center mb-4">Register</h2>
 
-          {error && <div className="alert alert-danger">{error}</div>}
+          {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
