@@ -38,7 +38,7 @@ module.exports = {
                 namedComponents: 'function-declaration',
                 unnamedComponents: 'arrow-function'
             }
-        ]
+        ],
 
         // Your other rules:
         'react/react-in-jsx-scope': 'off',
