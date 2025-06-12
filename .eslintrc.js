@@ -25,14 +25,23 @@ module.exports = {
     parserOptions: {
         ecmaFeatures: {
             jsx: true,
-            jsxRuntime: 'automatic'    // <— add this line
+            jsxRuntime: 'automatic'    // this line is correct
         },
         ecmaVersion: 12,
         sourceType: 'module'
     },
     rules: {
-        // … your other rules …
-        'react/react-in-jsx-scope': 'off',                  // already there
+        // Here is where this belongs:
+        'react/function-component-definition': [
+            'error',
+            {
+                namedComponents: 'arrow-function',
+                unnamedComponents: 'arrow-function'
+            }
+        ],
+
+        // Your other rules:
+        'react/react-in-jsx-scope': 'off',
         'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
         'prettier/prettier': 'off',
         'no-console': 'off',
