@@ -1,4 +1,5 @@
 // src/pages/Analysis/RegressionPage.jsx
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -19,14 +20,12 @@ export default function RegressionPage() {
         setError(null);
         try {
             const { data } = await axios.get('/api/analysis/regression', {
-                withCredentials: true,
                 params: {
                     start:  startDate || undefined,
                     end:    endDate   || undefined,
-                    period,              // pass 'all'|'morning'|'noon'|'afternoon'
+                    period,
                 },
             });
-            // expecting { slope, intercept, r_squared, chart_img? }
             setResult({
                 slope:     data.slope,
                 intercept: data.intercept,
@@ -48,77 +47,106 @@ export default function RegressionPage() {
     };
 
     return (
-        <div className="p-4">
-            <h2>Regression Analysis</h2>
+        <div className="page-bg page-bg--analysis page-bg--wide">
+            <div className="page-card">
+                <h2 className="mb-4 text-center">Regression Analysis</h2>
 
-            <form onSubmit={handleSubmit} className="form-inline mb-4">
-                <label className="me-3">
-                    From:{' '}
-                    <input
-                        type="date"
-                        name="start_date"
-                        value={startDate}
-                        onChange={e => setStartDate(e.target.value)}
-                        className="form-control"
-                    />
-                </label>
+                {/* Filter form */}
+                <form
+                    onSubmit={handleSubmit}
+                    className="row g-3 mb-4 align-items-end"
+                >
+                    <div className="col-auto">
+                        <label htmlFor="startDate" className="form-label">From</label>
+                        <input
+                            id="startDate"
+                            type="date"
+                            className="form-control"
+                            value={startDate}
+                            onChange={e => setStartDate(e.target.value)}
+                        />
+                    </div>
 
-                <label className="me-3">
-                    To:{' '}
-                    <input
-                        type="date"
-                        name="end_date"
-                        value={endDate}
-                        onChange={e => setEndDate(e.target.value)}
-                        className="form-control"
-                    />
-                </label>
+                    <div className="col-auto">
+                        <label htmlFor="endDate" className="form-label">To</label>
+                        <input
+                            id="endDate"
+                            type="date"
+                            className="form-control"
+                            value={endDate}
+                            onChange={e => setEndDate(e.target.value)}
+                        />
+                    </div>
 
-                <label className="me-3">
-                    Period:{' '}
-                    <select
-                        name="period"
-                        value={period}
-                        onChange={e => setPeriod(e.target.value)}
-                        className="form-select"
-                        style={{ display: 'inline-block', width: 'auto' }}
-                    >
-                        {['all','morning','noon','afternoon'].map(p => (
-                            <option key={p} value={p}>
-                                {p.charAt(0).toUpperCase() + p.slice(1)}
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                    <div className="col-auto">
+                        <label htmlFor="period" className="form-label">Period</label>
+                        <select
+                            id="period"
+                            className="form-select"
+                            value={period}
+                            onChange={e => setPeriod(e.target.value)}
+                        >
+                            {['all','morning','noon','afternoon'].map(p => (
+                                <option key={p} value={p}>
+                                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Filtering…' : 'Filter'}
-                </button>
-            </form>
+                    <div className="col-auto">
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={loading}
+                        >
+                            {loading ? 'Filtering…' : 'Filter'}
+                        </button>
+                    </div>
+                </form>
 
-            {error && (
-                <div className="alert alert-danger">
-                    Error: {error.message}
-                </div>
-            )}
+                {/* Error */}
+                {error && (
+                    <div className="alert alert-danger">
+                        Error: {error.message || 'Request failed'}
+                    </div>
+                )}
 
-            {result && (
-                <div className="mt-4">
-                    <h5>Results:</h5>
-                    <ul>
-                        <li>Slope:     {result.slope ?? 'N/A'}</li>
-                        <li>Intercept: {result.intercept ?? 'N/A'}</li>
-                        <li>R²:        {result.r2 ?? 'N/A'}</li>
-                    </ul>
-                </div>
-            )}
+                {/* Results table */}
+                {result && (
+                    <div className="mb-4">
+                        <h5>Results</h5>
+                        <table className="table table-sm">
+                            <tbody>
+                            <tr>
+                                <th>Slope</th>
+                                <td>{result.slope ?? 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Intercept</th>
+                                <td>{result.intercept ?? 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>R²</th>
+                                <td>{result.r2 ?? 'N/A'}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
-            {chartImg && (
-                <div className="mb-5">
-                    <h5>Data + Trend Line:</h5>
-                    <img src={`data:image/png;base64,${chartImg}`} alt="Regression chart" />
-                </div>
-            )}
+                {/* Chart */}
+                {chartImg && (
+                    <div className="mb-5">
+                        <h5>Data + Trend Line</h5>
+                        <img
+                            src={`data:image/png;base64,${chartImg}`}
+                            alt="Regression chart"
+                            className="img-fluid border"
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
