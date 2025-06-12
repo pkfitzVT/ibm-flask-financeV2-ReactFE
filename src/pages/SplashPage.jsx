@@ -1,3 +1,6 @@
+// src/pages/SplashPage.jsx
+
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function SplashPage() {
@@ -6,8 +9,7 @@ export default function SplashPage() {
             <div className="page-card text-center">
                 <h1>Welcome to the Transaction Analysis App</h1>
                 <p className="lead">
-                    Analyze your financial transactions with built-in regression and A/B
-                    testing tools.
+                    Analyze your financial transactions with built-in regression and A/B testing tools.
                 </p>
 
                 <div className="mt-4">
