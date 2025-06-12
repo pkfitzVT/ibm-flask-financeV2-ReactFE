@@ -45,6 +45,9 @@
   background: linear-gradient(120deg, #ff9a8b, #fecfef);
 }
 
+.page-bg--analysis {
+  background: linear-gradient(120deg, #667eea, #764ba2);
+}
 /* add more variants as you spin up new features:
 .page-bg--analysis { background: …; }
 .page-bg--dashboard { background: …; }
