@@ -1,9 +1,66 @@
 /* App.css */
 
-.App {
-  text-align: center;
+/* ─── GLOBAL LAYOUT CLASSES ─────────────────────────────────────────────────── */
+
+/* full-screen backdrop + flex centering */
+.page-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
+/* white “card” container for any page’s inner content */
+.page-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* allow wider cards where you need tables, lists, etc */
+.page-bg--wide .page-card {
+  max-width: 960px;
+}
+
+/* ─── BACKDROP VARIANTS ─────────────────────────────────────────────────────── */
+
+/* welcome screen gradient */
+.page-bg--welcome {
+  background: linear-gradient(120deg, #7b2ff7, #f107a3);
+}
+
+/* auth pages (login/register) */
+.page-bg--auth {
+  background: linear-gradient(120deg, #20c997, #0dcaf0);
+}
+
+/* transaction-related features */
+.page-bg--transactions {
+  background: linear-gradient(120deg, #ff9a8b, #fecfef);
+}
+
+/* add more variants as you spin up new features:
+.page-bg--analysis { background: …; }
+.page-bg--dashboard { background: …; }
+*/
+
+/* ─── YOUR EXISTING APP STYLES (pruned/merged) ──────────────────────────────── */
+
+.App-link {
+  color: #61dafb;
+}
+
+.mb-spacer {
+  margin-bottom: 300px;
+}
+
+/* if you still need your old header animation for some page: */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -15,31 +72,40 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── OPTIONAL TYPOGRAPHY/UTILITY ───────────────────────────────────────────── */
+
+h1, h2, h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+/* example button variants—feel free to tune */
+.btn-primary {
+  background: #0d6efd;
   color: white;
 }
-
-.App-link {
-  color: #61dafb;
+.btn-primary:hover {
+  background: #0b5ed7;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn-secondary {
+  background: #6c757d;
+  color: white;
 }
-
-/* Utility spacing helper for bottom-of-page breathing room */
-.mb-spacer {
-  margin-bottom: 300px;
+.btn-secondary:hover {
+  background: #5c636a;
 }
