@@ -35,10 +35,10 @@ module.exports = {
         'react/function-component-definition': [
             'error',
             {
-                namedComponents: 'arrow-function',
+                namedComponents: 'function-declaration',
                 unnamedComponents: 'arrow-function'
             }
-        ],
+        ]
 
         // Your other rules:
         'react/react-in-jsx-scope': 'off',
