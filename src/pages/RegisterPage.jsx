@@ -16,9 +16,19 @@ export default function RegisterPage() {
 
     try {
       await api.post('/register', { email, password });
+      // successful registration → send them to login
       navigate('/login', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      const msg = err.response?.data?.error;
+
+      // If they’re already registered, send them to login immediately
+      if (msg === 'Email already registered') {
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      // Otherwise show the error on this form
+      setError(msg || 'Registration failed');
     }
   };
 
