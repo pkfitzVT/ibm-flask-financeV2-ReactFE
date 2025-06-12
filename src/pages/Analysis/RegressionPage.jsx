@@ -20,6 +20,7 @@ export default function RegressionPage() {
         setError(null);
         try {
             const { data } = await axios.get('/api/analysis/regression', {
+                withCredentials: true,           // ← put this back
                 params: {
                     start:  startDate || undefined,
                     end:    endDate   || undefined,
@@ -51,7 +52,6 @@ export default function RegressionPage() {
             <div className="page-card">
                 <h2 className="mb-4 text-center">Regression Analysis</h2>
 
-                {/* Filter form */}
                 <form
                     onSubmit={handleSubmit}
                     className="row g-3 mb-4 align-items-end"
@@ -105,14 +105,12 @@ export default function RegressionPage() {
                     </div>
                 </form>
 
-                {/* Error */}
                 {error && (
                     <div className="alert alert-danger">
                         Error: {error.message || 'Request failed'}
                     </div>
                 )}
 
-                {/* Results table */}
                 {result && (
                     <div className="mb-4">
                         <h5>Results</h5>
@@ -135,7 +133,6 @@ export default function RegressionPage() {
                     </div>
                 )}
 
-                {/* Chart */}
                 {chartImg && (
                     <div className="mb-5">
                         <h5>Data + Trend Line</h5>
