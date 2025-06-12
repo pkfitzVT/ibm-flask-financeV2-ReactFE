@@ -11,13 +11,13 @@ const groupOptionsMap = {
 };
 
 export default function ABTestPage() {
-    const [groupBy, setGroupBy]       = useState('half');
+    const [groupBy, setGroupBy]           = useState('half');
     const [groupOptions, setGroupOptions] = useState(groupOptionsMap.half);
-    const [paramA, setParamA]         = useState(groupOptionsMap.half[0]);
-    const [paramB, setParamB]         = useState(groupOptionsMap.half[1]);
-    const [results, setResults]       = useState(null);
-    const [error, setError]           = useState('');
-    const [loading, setLoading]       = useState(false);
+    const [paramA, setParamA]             = useState(groupOptionsMap.half[0]);
+    const [paramB, setParamB]             = useState(groupOptionsMap.half[1]);
+    const [results, setResults]           = useState(null);
+    const [error, setError]               = useState('');
+    const [loading, setLoading]           = useState(false);
 
     const handleGroupByChange = e => {
         const gb = e.target.value;
@@ -53,9 +53,7 @@ export default function ABTestPage() {
             <div className="page-card">
                 <h2 className="mb-4">A/B Test</h2>
 
-                {error && (
-                    <div className="alert alert-danger">{error}</div>
-                )}
+                {error && <div className="alert alert-danger">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
@@ -110,18 +108,57 @@ export default function ABTestPage() {
                 {results && (
                     <div className="mt-5">
                         <h4>Results</h4>
-                        <p><strong>P-value:</strong> {results.p_value?.toFixed(5) ?? 'N/A'}</p>
-                        <h5>Group A:</h5>
-                        <pre>{JSON.stringify(results.groupA, null, 2)}</pre>
-                        <h5>Group B:</h5>
-                        <pre>{JSON.stringify(results.groupB, null, 2)}</pre>
+                        <p>
+                            <strong>t-score:</strong>{' '}
+                            {results.t_score != null
+                                ? results.t_score.toFixed(3)
+                                : 'N/A'}
+                        </p>
+                        <p>
+                            <strong>p-value:</strong>{' '}
+                            {results.p_value != null
+                                ? results.p_value.toFixed(5)
+                                : 'N/A'}
+                        </p>
+
+                        <details className="mt-3">
+                            <summary style={{ cursor: 'pointer' }}>
+                                Show raw group data
+                            </summary>
+
+                            <table className="table table-bordered mt-2">
+                                <thead>
+                                <tr>
+                                    <th>Group A</th>
+                                    <th>Group B</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {(() => {
+                                    const a = results.groupA || [];
+                                    const b = results.groupB || [];
+                                    const maxLen = Math.max(a.length, b.length);
+                                    return Array.from({ length: maxLen }).map((_, i) => {
+                                        const key = `${a[i] ?? ''}-${b[i] ?? ''}-${i}`;
+                                        return (
+                                            <tr key={key}>
+                                                <td>{a[i] != null ? a[i] : ''}</td>
+                                                <td>{b[i] != null ? b[i] : ''}</td>
+                                            </tr>
+                                        );
+                                    });
+                                })()}
+                                </tbody>
+                            </table>
+                        </details>
+
                         {results.boxplot_img && (
                             <>
-                                <h5 className="mt-3">Boxplot</h5>
+                                <h5 className="mt-4">Boxplot</h5>
                                 <img
                                     src={`data:image/png;base64,${results.boxplot_img}`}
                                     alt="Boxplot"
-                                    className="img-fluid border"
+                                    className="img-fluid border mt-2"
                                 />
                             </>
                         )}
