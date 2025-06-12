@@ -2,118 +2,122 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import Header from '../../components/Header';
 
-const AbTestPage = () => {
-    // Define valid options for each group_by value
-    const groupOptionsMap = {
-        half: ['1', '2'],
-        weekday: ['0', '1', '2', '3', '4', '5', '6'],
-        time: ['morning', 'afternoon', 'evening', 'night'],
-        month: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+const groupOptionsMap = {
+    half:    ['1', '2'],
+    weekday: ['0','1','2','3','4','5','6'],
+    time:    ['morning','afternoon','evening','night'],
+    month:   ['1','2','3','4','5','6','7','8','9','10','11','12']
+};
+
+export default function ABTestPage() {
+    const [groupBy, setGroupBy]       = useState('half');
+    const [groupOptions, setGroupOptions] = useState(groupOptionsMap.half);
+    const [paramA, setParamA]         = useState(groupOptionsMap.half[0]);
+    const [paramB, setParamB]         = useState(groupOptionsMap.half[1]);
+    const [results, setResults]       = useState(null);
+    const [error, setError]           = useState('');
+    const [loading, setLoading]       = useState(false);
+
+    const handleGroupByChange = e => {
+        const gb = e.target.value;
+        setGroupBy(gb);
+        const opts = groupOptionsMap[gb];
+        setGroupOptions(opts);
+        setParamA(opts[0]);
+        setParamB(opts[1] || opts[0]);
     };
 
-    // State for group_by and options
-    const [groupBy, setGroupBy] = useState('half');
-    const [groupOptions, setGroupOptions] = useState(groupOptionsMap['half']);
-
-    // State for paramA and paramB
-    const [paramA, setParamA] = useState(groupOptions[0]);
-    const [paramB, setParamB] = useState(groupOptions[1]);
-
-    // State for results
-    const [results, setResults] = useState(null);
-    const [error, setError] = useState('');
-
-    // When groupBy changes → update options and reset paramA/B
-    const handleGroupByChange = (e) => {
-        const selectedGroupBy = e.target.value;
-        setGroupBy(selectedGroupBy);
-
-        const newOptions = groupOptionsMap[selectedGroupBy];
-        setGroupOptions(newOptions);
-
-        // Reset paramA and paramB to first 2 options
-        setParamA(newOptions[0]);
-        setParamB(newOptions[1] || newOptions[0]);
-    };
-
-    // Handle form submit
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         setError('');
         setResults(null);
+        setLoading(true);
 
         try {
             const resp = await axios.post('/api/analysis/abtest', {
                 group_by: groupBy,
-                param_a: paramA,
-                param_b: paramB
+                param_a:  paramA,
+                param_b:  paramB
             });
             setResults(resp.data);
-        } catch (err) {
-            console.error(err);
+        } catch {
             setError('Failed to run A/B test');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <>
-            <Header />
-            <div className="container mt-4">
+        <div className="page-bg page-bg--analysis page-bg--wide">
+            <div className="page-card">
                 <h2 className="mb-4">A/B Test</h2>
 
+                {error && (
+                    <div className="alert alert-danger">{error}</div>
+                )}
+
                 <form onSubmit={handleSubmit}>
-                    <label className="form-label">Group by:</label>
-                    <select
-                        className="form-select mb-3"
-                        value={groupBy}
-                        onChange={handleGroupByChange}
-                    >
-                        <option value="half">Half (first/second)</option>
-                        <option value="weekday">Weekday (0=Mon, 6=Sun)</option>
-                        <option value="time">Time of Day</option>
-                        <option value="month">Month</option>
-                    </select>
+                    <div className="mb-3">
+                        <label className="form-label">Group by:</label>
+                        <select
+                            className="form-select"
+                            value={groupBy}
+                            onChange={handleGroupByChange}
+                        >
+                            <option value="half">Half (first/second)</option>
+                            <option value="weekday">Weekday (0=Mon…6=Sun)</option>
+                            <option value="time">Time of Day</option>
+                            <option value="month">Month</option>
+                        </select>
+                    </div>
 
-                    <label className="form-label">Group A param:</label>
-                    <select
-                        className="form-select mb-3"
-                        value={paramA}
-                        onChange={(e) => setParamA(e.target.value)}
-                    >
-                        {groupOptions.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
+                    <div className="mb-3">
+                        <label className="form-label">Group A param:</label>
+                        <select
+                            className="form-select"
+                            value={paramA}
+                            onChange={e => setParamA(e.target.value)}
+                        >
+                            {groupOptions.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
+                    </div>
 
-                    <label className="form-label">Group B param:</label>
-                    <select
-                        className="form-select mb-3"
-                        value={paramB}
-                        onChange={(e) => setParamB(e.target.value)}
-                    >
-                        {groupOptions.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
+                    <div className="mb-3">
+                        <label className="form-label">Group B param:</label>
+                        <select
+                            className="form-select"
+                            value={paramB}
+                            onChange={e => setParamB(e.target.value)}
+                        >
+                            {groupOptions.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
+                    </div>
 
-                    <button type="submit" className="btn btn-primary">Run A/B Test</button>
+                    <button
+                        type="submit"
+                        className="btn btn-primary w-100"
+                        disabled={loading}
+                    >
+                        {loading ? 'Running…' : 'Run A/B Test'}
+                    </button>
                 </form>
-
-                {error && <div className="alert alert-danger mt-4">{error}</div>}
 
                 {results && (
                     <div className="mt-5">
-                        <h4>Results:</h4>
-                        <p><strong>P-value:</strong> {results.p_value !== null ? results.p_value.toFixed(5) : 'N/A'}</p>
-                        <h5>Group A (outliers removed):</h5>
+                        <h4>Results</h4>
+                        <p><strong>P-value:</strong> {results.p_value?.toFixed(5) ?? 'N/A'}</p>
+                        <h5>Group A:</h5>
                         <pre>{JSON.stringify(results.groupA, null, 2)}</pre>
-                        <h5>Group B (outliers removed):</h5>
+                        <h5>Group B:</h5>
                         <pre>{JSON.stringify(results.groupB, null, 2)}</pre>
                         {results.boxplot_img && (
                             <>
-                                <h5>Boxplot:</h5>
+                                <h5 className="mt-3">Boxplot</h5>
                                 <img
                                     src={`data:image/png;base64,${results.boxplot_img}`}
                                     alt="Boxplot"
@@ -124,8 +128,6 @@ const AbTestPage = () => {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
-};
-
-export default AbTestPage;
+}
