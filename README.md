@@ -149,4 +149,7 @@ Please run `npm run lint` before submitting.
 
 ## License
 
+### Known Issues
+Dev-tooling vulnerabilities
+A few high/medium severity advisories remain in transitive dev dependencies (SVGO, postcss, webpack-dev-server). These run only at build time and do not affect production code. They’ll be fixed upstream in a future Create-React-App release.
 
