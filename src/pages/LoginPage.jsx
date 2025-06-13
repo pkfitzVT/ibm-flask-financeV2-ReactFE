@@ -1,53 +1,41 @@
 // src/pages/LoginPage.jsx
 
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import api from '../apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
-  const [email, setEmail]       = useState('');
+  const { login }          = useAuth();
+  const [email, setEmail]  = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState(null);
-  const navigate                = useNavigate();
-  const location                = useLocation();
+  const [error, setError]  = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // If someone redirected here after register, show that flash:
-  const flash = location.state?.flash;
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
-      await api.post('/login', { email, password });
-      navigate('/transactions', { replace: true });
+      // this calls POST /login, sets isAuthenticated, and navigates
+      await login(email, password);
     } catch (err) {
+      // show server message or fallback
       setError(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
       <div className="page-bg page-bg--auth">
-        <div className="page-card">
+        <div className="page-card mx-auto" style={{ maxWidth: '400px' }}>
           <h2 className="text-center mb-4">Login</h2>
 
-          {flash && (
-              <div className="alert alert-info" role="alert">
-                {flash}
-              </div>
-          )}
-
-          {error && (
-              <div className="alert alert-danger" role="alert">
-                {error}
-              </div>
-          )}
+          {error && <div className="alert alert-danger">{error}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="login-email" className="form-label">
-                Email
-              </label>
+              <label htmlFor="login-email" className="form-label">Email</label>
               <input
                   id="login-email"
                   type="email"
@@ -59,9 +47,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="login-password" className="form-label">
-                Password
-              </label>
+              <label htmlFor="login-password" className="form-label">Password</label>
               <input
                   id="login-password"
                   type="password"
@@ -72,14 +58,18 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary w-100">
-              Log In
+            <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={loading}
+            >
+              {loading ? 'Logging in…' : 'Log In'}
             </button>
           </form>
 
-          <p className="text-center mt-3">
+          <p className="mt-3 text-center">
             Don’t have an account?{' '}
-            <Link to="/register">Register here</Link>
+            <a href="/register">Register here</a>
           </p>
         </div>
       </div>

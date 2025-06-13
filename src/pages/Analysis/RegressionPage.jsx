@@ -1,9 +1,16 @@
 // src/pages/Analysis/RegressionPage.jsx
 
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import api from '../../apiClient';
 
 export default function RegressionPage() {
+    // raw transactions (to derive date bounds)
+    const [txns, setTxns] = useState([]);
+
+    // date bounds (YYYY-MM-DD)
+    const [minDate, setMinDate] = useState('');
+    const [maxDate, setMaxDate] = useState('');
+
     // filter state
     const [startDate, setStartDate] = useState('');
     const [endDate,   setEndDate]   = useState('');
@@ -15,25 +22,49 @@ export default function RegressionPage() {
     const [error,    setError]    = useState(null);
     const [loading,  setLoading]  = useState(false);
 
+    // 1) On mount: fetch all txns, compute min/max
+    useEffect(() => {
+        api.get('/transactions')
+            .then(({ data }) => {
+                setTxns(data);
+                // extract date strings YYYY-MM-DD, sort them
+                const isoDates = data
+                    .map(t => t.dateTime.slice(0,10))
+                    .sort();
+                const first = isoDates[0];
+                const last  = isoDates[isoDates.length - 1];
+                setMinDate(first);
+                setMaxDate(last);
+                setStartDate(first);
+                setEndDate(last);
+            })
+            .catch(err => {
+                console.error('Could not load transactions for date bounds', err);
+            });
+    }, []);
+
     const runAnalysis = async () => {
         setLoading(true);
         setError(null);
+
         try {
-            const { data } = await axios.get('/api/analysis/regression', {
-                withCredentials: true,           // ← put this back
+            const { data } = await api.get('/analysis/regression', {
                 params: {
-                    start:  startDate || undefined,
-                    end:    endDate   || undefined,
+                    start_date: startDate,
+                    end_date:   endDate,
                     period,
                 },
             });
+
             setResult({
                 slope:     data.slope,
                 intercept: data.intercept,
                 r2:        data.r_squared ?? data.r2,
             });
             setChartImg(data.chart_img ?? null);
+
         } catch (e) {
+            console.error('Regression error', e);
             setError(e);
             setResult(null);
             setChartImg(null);
@@ -52,10 +83,8 @@ export default function RegressionPage() {
             <div className="page-card">
                 <h2 className="mb-4 text-center">Regression Analysis</h2>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="row g-3 mb-4 align-items-end"
-                >
+                <form onSubmit={handleSubmit} className="row g-3 mb-4 align-items-end">
+                    {/* FROM */}
                     <div className="col-auto">
                         <label htmlFor="startDate" className="form-label">From</label>
                         <input
@@ -63,10 +92,13 @@ export default function RegressionPage() {
                             type="date"
                             className="form-control"
                             value={startDate}
+                            min={minDate}
+                            max={endDate}
                             onChange={e => setStartDate(e.target.value)}
                         />
                     </div>
 
+                    {/* TO */}
                     <div className="col-auto">
                         <label htmlFor="endDate" className="form-label">To</label>
                         <input
@@ -74,10 +106,13 @@ export default function RegressionPage() {
                             type="date"
                             className="form-control"
                             value={endDate}
+                            min={startDate}
+                            max={maxDate}
                             onChange={e => setEndDate(e.target.value)}
                         />
                     </div>
 
+                    {/* PERIOD */}
                     <div className="col-auto">
                         <label htmlFor="period" className="form-label">Period</label>
                         <select
@@ -94,12 +129,9 @@ export default function RegressionPage() {
                         </select>
                     </div>
 
+                    {/* SUBMIT */}
                     <div className="col-auto">
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={loading}
-                        >
+                        <button type="submit" className="btn btn-primary" disabled={loading}>
                             {loading ? 'Filtering…' : 'Filter'}
                         </button>
                     </div>
