@@ -5,9 +5,6 @@ import api from '../../apiClient';
 
 export default function RegressionPage() {
     // raw transactions (to derive date bounds)
-    const [txns, setTxns] = useState([]);
-
-    // date bounds (YYYY-MM-DD)
     const [minDate, setMinDate] = useState('');
     const [maxDate, setMaxDate] = useState('');
 
@@ -26,7 +23,6 @@ export default function RegressionPage() {
     useEffect(() => {
         api.get('/transactions')
             .then(({ data }) => {
-                setTxns(data);
                 // extract date strings YYYY-MM-DD, sort them
                 const isoDates = data
                     .map(t => t.dateTime.slice(0,10))
