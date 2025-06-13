@@ -1,70 +1,152 @@
-# Getting Started with Create React App
+# Transaction App (React Front End)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React single-page application for viewing, creating, updating, and deleting transactions, plus running A/B tests and regression analysis against a Flask back end.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [Demo](#demo)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Available Scripts](#available-scripts)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Demo
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> *Add a link to your live demo here.*
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `npm run build`
+- **Transactions**
+    - List transactions with date, time, and amount
+    - Create, edit, and delete transactions
+- **A/B Testing**
+    - Compare two groups (by half, weekday, time, or month)
+    - Perform t-tests and display a boxplot image
+- **Regression Analysis**
+    - Select a date range and period (all, morning, noon, afternoon)
+    - Display slope, intercept, R², and a trend-line chart
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **React** (Hooks)
+- **Axios** for HTTP requests
+- **Bootstrap 5** for UI components
+- **ESLint** + **Prettier** for code quality
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Getting Started
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Prerequisites
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- [Node.js](https://nodejs.org/) v16 or higher
+- npm (bundled with Node.js)
+- A running Flask API at `http://localhost:5000/api`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Installation
 
-## Learn More
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/<your-org>/transaction-app-react.git
+   cd transaction-app-react
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Available Scripts
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- ``: Run the app in development mode at `http://localhost:3000`
+- ``: Build the app for production (outputs to `build/`)
+- ``: Lint source files with ESLint
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Configuration
 
-### Analyzing the Bundle Size
+Create a `.env` file in the project root (optional) to override defaults:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```env
+REACT_APP_API_BASE_URL=http://localhost:5000/api
+```
 
-### Making a Progressive Web App
+The default `apiClient.js` uses `/api` as the base URL.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```plaintext
+src/
+├── apiClient.js         # Axios instance & baseURL
+├── index.js             # React entry point
+├── App.jsx              # Routes & layout
+├── components/          # Reusable UI components
+│   └── TransactionTable.jsx
+├── pages/
+│   ├── Transactions/
+│   │   └── TransactionsPage.jsx
+│   └── Analysis/
+│       ├── AbTestPage.jsx
+│       └── RegressionPage.jsx
+└── styles/              # Custom CSS (optional)
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Usage
 
-### `npm run build` fails to minify
+1. Ensure the Flask API is running:
+   ```bash
+   cd flask-backend
+   flask run
+   ```
+2. Start the React app:
+   ```bash
+   cd transaction-app-react
+   npm start
+   ```
+3. Open your browser at `http://localhost:3000`.
+4. Navigate to **Transactions** to manage records.
+5. Navigate to **Analysis** for A/B tests and regression.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m "feat: add new feature"
+   ```
+4. Push to your branch:
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. Open a Pull Request.
+
+Please run `npm run lint` before submitting.
+
+---
+
+## License
+
+
